@@ -6,11 +6,51 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct VideoPlayerView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
+
+	@State private var isPlaying: Bool = false
+
+	var body: some View {
+		ZStack(alignment: .center) {
+			Color.white
+				.ignoresSafeArea()
+
+			controlButtonsView
+		}
+	}
+
+	var controlButtonsView: some View {
+		HStack(alignment: .center) {
+			MediaControlButton(systemName: "backward.fill") {
+				seekBackward()
+			}
+			MediaControlButton(
+				systemName: isPlaying ? "pause.fill" : "play.fill"
+			) {
+				togglePlaying()
+			}
+			MediaControlButton(systemName: "forward.fill") {
+				seekForward()
+			}
+		}
+	}
+}
+
+extension VideoPlayerView {
+
+	func togglePlaying() {
+
+	}
+
+	func seekBackward() {
+
+	}
+
+	func seekForward() {
+
+	}
 }
 
 #Preview {
