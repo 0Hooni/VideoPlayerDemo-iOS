@@ -10,49 +10,25 @@ import AVKit
 
 struct VideoPlayerView: View {
 
-	@State private var isPlaying: Bool = false
+	@StateObject private var viewModel: VideoPlayerViewModel
+
+	init(video: Video) {
+		_viewModel = StateObject(wrappedValue: VideoPlayerViewModel(video: video))
+	}
 
 	var body: some View {
 		ZStack(alignment: .center) {
-			Color.white
+			VideoPlayerLayerView(player: viewModel.player)
 				.ignoresSafeArea()
-
-			controlButtonsView
 		}
-	}
-
-	var controlButtonsView: some View {
-		HStack(alignment: .center) {
-			MediaControlButton(systemName: "backward.fill") {
-				seekBackward()
-			}
-			MediaControlButton(
-				systemName: isPlaying ? "pause.fill" : "play.fill"
-			) {
-				togglePlaying()
-			}
-			MediaControlButton(systemName: "forward.fill") {
-				seekForward()
-			}
-		}
-	}
-}
-
-extension VideoPlayerView {
-
-	func togglePlaying() {
-
-	}
-
-	func seekBackward() {
-
-	}
-
-	func seekForward() {
-
 	}
 }
 
 #Preview {
-    VideoPlayerView()
+    VideoPlayerView(
+		video: Video(
+			title: "Dog 15s",
+			source: .local(fileName: "dog 15s", ext: "mp4")
+		)
+	)
 }
