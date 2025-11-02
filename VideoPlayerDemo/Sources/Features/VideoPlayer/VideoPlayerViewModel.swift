@@ -18,5 +18,7 @@ class VideoPlayerViewModel: ObservableObject {
 			return
 		}
 		self.player = AVPlayer(url: url)
+
+		player.play()
 	}
 }
