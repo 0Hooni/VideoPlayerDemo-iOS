@@ -6,17 +6,26 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		05D9F9562EB651E20050FCD5 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 05D9F9552EB651E20050FCD5 /* ComposableArchitecture */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
 		05D9F9462EB64F700050FCD5 /* VideoPlayerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoPlayerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		05D9FE722EB751870050FCD5 /* Exceptions for "VideoPlayerDemo" folder in "VideoPlayerDemo" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 05D9F9452EB64F700050FCD5 /* VideoPlayerDemo */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		05D9F9482EB64F700050FCD5 /* VideoPlayerDemo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				05D9FE722EB751870050FCD5 /* Exceptions for "VideoPlayerDemo" folder in "VideoPlayerDemo" target */,
+			);
 			path = VideoPlayerDemo;
 			sourceTree = "<group>";
 		};
@@ -27,7 +36,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05D9F9562EB651E20050FCD5 /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +78,6 @@
 			);
 			name = VideoPlayerDemo;
 			packageProductDependencies = (
-				05D9F9552EB651E20050FCD5 /* ComposableArchitecture */,
 			);
 			productName = VideoPlayerDemo;
 			productReference = 05D9F9462EB64F700050FCD5 /* VideoPlayerDemo.app */;
@@ -101,7 +108,6 @@
 			mainGroup = 05D9F93D2EB64F700050FCD5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				05D9F9542EB651E20050FCD5 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 05D9F9472EB64F700050FCD5 /* Products */;
@@ -263,6 +269,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoPlayerDemo/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "비디오 플레이어 데모";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -310,6 +317,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoPlayerDemo/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "비디오 플레이어 데모";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -366,25 +374,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		05D9F9542EB651E20050FCD5 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.23.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		05D9F9552EB651E20050FCD5 /* ComposableArchitecture */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 05D9F9542EB651E20050FCD5 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 05D9F93E2EB64F700050FCD5 /* Project object */;
 }
