@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  VideoPlayerDemo
-//
-//  Created by 송영훈 on 11/1/25.
-//
-
 import SwiftUI
 
 struct ContentView: View {
