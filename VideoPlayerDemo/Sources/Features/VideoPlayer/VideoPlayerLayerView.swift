@@ -13,30 +13,30 @@ struct VideoPlayerLayerView: UIViewRepresentable {
 	let player: AVPlayer
 
 	func makeUIView(context: Context) -> UIView {
-		let view = UIView()
+		let view = PlayerView(player: player)
 		view.backgroundColor = .black
-
-		let playerLayer = AVPlayerLayer(player: player)
-		playerLayer.videoGravity = .resizeAspect
-		playerLayer.frame = view.bounds
-
-		view.layer.addSublayer(playerLayer)
-
-		// Store playerLayer in context for updates
-		context.coordinator.playerLayer = playerLayer
-
 		return view
 	}
 
-	func updateUIView(_ uiView: UIView, context: Context) {
-		context.coordinator.playerLayer?.frame = uiView.bounds
+	func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+private class PlayerView: UIView {
+	let playerLayer: AVPlayerLayer
+
+	init(player: AVPlayer) {
+		playerLayer = AVPlayerLayer(player: player)
+		playerLayer.videoGravity = .resizeAspect
+		super.init(frame: .zero)
+		layer.addSublayer(playerLayer)
 	}
 
-	func makeCoordinator() -> Coordinator {
-		Coordinator()
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
 	}
 
-	class Coordinator {
-		var playerLayer: AVPlayerLayer?
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		playerLayer.frame = bounds
 	}
 }
