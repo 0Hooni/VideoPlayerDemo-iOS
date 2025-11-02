@@ -9,9 +9,9 @@ import SwiftUI
 
 @main
 struct VideoPlayerDemoApp: App {
-    var body: some Scene {
-        WindowGroup {
-            VideoListView()
-        }
-    }
+	var body: some Scene {
+		WindowGroup {
+			VideoListView()
+		}
+	}
 }
