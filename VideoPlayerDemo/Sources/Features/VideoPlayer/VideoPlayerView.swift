@@ -38,7 +38,7 @@ struct VideoPlayerView: View {
 					}
 
 				controlButtonsView
-				seekBarView
+				playbackTimeView
 			}
 
 		}
@@ -74,10 +74,14 @@ struct VideoPlayerView: View {
 		}
 	}
 
-	var seekBarView: some View {
+	var playbackTimeView: some View {
 		VStack {
 			Spacer()
-			
+
+			PlayTimeText(
+				currentTime: $viewModel.currentTime,
+				duration: $viewModel.duration
+			)
 			SeekBar(
 				currentTime: $viewModel.currentTime,
 				duration: $viewModel.duration
