@@ -120,10 +120,10 @@ extension VideoPlayerView {
 }
 
 #Preview {
-    VideoPlayerView(
+	VideoPlayerView(
 		video: Video(
-			title: "Dog 15s",
-			source: .local(fileName: "dog 60s", ext: "mp4")
+			title: "HLS 영상",
+			source: .remote(url: URL(string: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8")!)
 		)
 	)
 }
