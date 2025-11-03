@@ -14,15 +14,16 @@ struct MediaControlButton: View {
 
 	var body: some View {
 		Button(action: action) {
-			Image(systemName:	systemName)
-				.resizable()
-				.scaledToFit()
-				.tint(.white)
-				.padding(12)
+			Circle()
+				.foregroundStyle(.clear)
+				.overlay(content: {
+					Image(systemName: systemName)
+						.resizable()
+						.padding(18)
+						.tint(.white)
+				})
 				.clipShape(Circle())
-				.glassEffect()
-				.background(.clear)
-				.frame(width: 60, height: 60)
+				.glassEffect(in: .buttonBorder)
 		}
 	}
 }
