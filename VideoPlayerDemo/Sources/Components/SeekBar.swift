@@ -20,9 +20,11 @@ struct SeekBar: View {
 				.clipShape(.capsule)
 				.frame(width: maxWidth + horizontalPadding * 2, height: 20)
 				.overlay {
+					let progress = duration > 0 ? (currentTime / duration) : 0
+					
 					HStack(spacing: 0) {
 						Color.white
-							.frame(width: maxWidth * (currentTime / duration))
+							.frame(width: maxWidth * progress)
 
 						Spacer(minLength: 0)
 					}
