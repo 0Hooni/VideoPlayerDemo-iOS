@@ -23,7 +23,7 @@ struct MediaControlButton: View {
 						.tint(.white)
 				})
 				.clipShape(Circle())
-				.glassEffect(in: .buttonBorder)
+				.glassEffect(.clear.interactive())
 		}
 	}
 }

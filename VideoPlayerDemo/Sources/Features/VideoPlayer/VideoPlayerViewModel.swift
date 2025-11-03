@@ -11,7 +11,10 @@ import Combine
 class VideoPlayerViewModel: ObservableObject {
 
 	@Published var isPlaying: Bool = false
+	@Published var duration: TimeInterval = 0.0
+	@Published var currentTime: TimeInterval = 0.0
 	let player: AVPlayer
+	var timeObserver: Any?
 
 	init(video: Video) {
 		guard let url = video.source.url else {
@@ -19,6 +22,8 @@ class VideoPlayerViewModel: ObservableObject {
 			return
 		}
 		self.player = AVPlayer(url: url)
+
+		addPeriodicTimeObserver()
 	}
 
 	func togglePlaying() {
@@ -42,7 +47,29 @@ class VideoPlayerViewModel: ObservableObject {
 		player.seek(to: newTime)
 	}
 
-	deinit {
+	func addPeriodicTimeObserver() {
+		let interval = CMTime(value: 1, timescale: 2)
+		timeObserver = player.addPeriodicTimeObserver(
+			forInterval: interval,
+			queue: .main
+		) { [weak self] time in
+			guard let self else { return }
+
+			Task { @MainActor in
+				currentTime = time.seconds
+				duration = player.currentItem?.duration.seconds ?? 0.0
+			}
+		}
+	}
+
+	func removePeriodicTimeObserver() {
+		guard let timeObserver else { return }
+		player.removeTimeObserver(timeObserver)
+		self.timeObserver = nil
+	}
+
+	isolated deinit {
 		player.pause()
+		removePeriodicTimeObserver()
 	}
 }

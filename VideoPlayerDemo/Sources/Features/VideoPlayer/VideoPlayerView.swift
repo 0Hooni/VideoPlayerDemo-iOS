@@ -38,8 +38,11 @@ struct VideoPlayerView: View {
 					}
 
 				controlButtonsView
+				seekBarView
 			}
+
 		}
+		.ignoresSafeArea(.all)
 		.onAppear {
 			resetControlsTimer()
 		}
@@ -56,7 +59,8 @@ struct VideoPlayerView: View {
 			}
 			.frame(width: 60, height: 60)
 			MediaControlButton(
-				systemName: viewModel.isPlaying ? "pause.fill" : "play.fill"
+				systemName: viewModel.isPlaying ? 
+				"pause.fill" : "play.fill"
 			) {
 				viewModel.togglePlaying()
 				resetControlsTimer()
@@ -70,6 +74,21 @@ struct VideoPlayerView: View {
 		}
 	}
 
+	var seekBarView: some View {
+		VStack {
+			Spacer()
+			
+			SeekBar(
+				currentTime: $viewModel.currentTime,
+				duration: $viewModel.duration
+			)
+			.padding(.bottom, 16)
+		}
+		.ignoresSafeArea(.all)
+	}
+}
+
+extension VideoPlayerView {
 	func toggleControlsVisibility() {
 		withAnimation(.easeInOut(duration: 0.3)) {
 			showControls.toggle()
@@ -85,7 +104,10 @@ struct VideoPlayerView: View {
 	func resetControlsTimer() {
 		controlsTimer?.invalidate()
 
-		controlsTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { _ in
+		controlsTimer = Timer.scheduledTimer(
+			withTimeInterval: 5.0,
+			repeats: false
+		) { _ in
 			withAnimation(.easeInOut(duration: 0.3)) {
 				showControls = false
 			}
@@ -97,7 +119,7 @@ struct VideoPlayerView: View {
     VideoPlayerView(
 		video: Video(
 			title: "Dog 15s",
-			source: .local(fileName: "dog 15s", ext: "mp4")
+			source: .local(fileName: "dog 60s", ext: "mp4")
 		)
 	)
 }
