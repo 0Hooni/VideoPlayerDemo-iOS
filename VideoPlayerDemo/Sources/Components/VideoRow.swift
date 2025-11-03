@@ -25,7 +25,7 @@ struct VideoRow: View {
 					.truncationMode(.tail)
 
 				if let duration = viewModel.durations[video.id] {
-					Text(viewModel.formatDuration(duration))
+					Text(duration.toKRStyleString())
 						.font(.default)
 						.foregroundColor(.secondary)
 				} else {

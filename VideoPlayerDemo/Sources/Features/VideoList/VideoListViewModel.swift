@@ -70,27 +70,5 @@ final class VideoListViewModel: ObservableObject {
 		}
 	}
 
-	func formatDuration(_ seconds: TimeInterval) -> String {
-		let totalSeconds = Int(seconds)
-		let hours = totalSeconds / 3600
-		let minutes = (totalSeconds % 3600) / 60
-		let secs = totalSeconds % 60
-
-		var components: [String] = []
-
-		if hours > 0 {
-			components.append("\(hours)시간")
-			components.append("\(minutes)분")
-			components.append("\(secs)초")
-		} else if minutes > 0 {
-			components.append("\(minutes)분")
-			components.append("\(secs)초")
-		} else {
-			components.append("\(secs)초")
-		}
-
-		return components.joined(separator: " ")
-	}
-
 	func playHLSVideo() { }
 }
