@@ -18,7 +18,8 @@ struct SeekBar: View {
 		ZStack {
 			Color.black.opacity(0.6)
 				.clipShape(.capsule)
-				.frame(width: maxWidth + horizontalPadding * 2, height: 20)
+				.frame(height: 20)
+				.frame(maxWidth: maxWidth + horizontalPadding * 2)
 				.overlay {
 					let progress = duration > 0 ? (currentTime / duration) : 0
 					

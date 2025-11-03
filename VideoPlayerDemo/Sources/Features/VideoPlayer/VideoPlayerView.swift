@@ -75,7 +75,7 @@ struct VideoPlayerView: View {
 	}
 
 	var playbackTimeView: some View {
-		VStack {
+		VStack(spacing: 12) {
 			Spacer()
 
 			PlayTimeText(
@@ -86,9 +86,9 @@ struct VideoPlayerView: View {
 				currentTime: $viewModel.currentTime,
 				duration: $viewModel.duration
 			)
-			.padding(.bottom, 16)
+			.padding(.bottom, UIDevice.current.orientation.isLandscape ? 12 : 40)
+			.padding(.horizontal, 28)
 		}
-		.ignoresSafeArea(.all)
 	}
 }
 
