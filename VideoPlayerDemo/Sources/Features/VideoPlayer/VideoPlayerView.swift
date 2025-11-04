@@ -43,11 +43,24 @@ struct VideoPlayerView: View {
 
 		}
 		.ignoresSafeArea(.all)
+		.toolbar(showControls ? .visible : .hidden)
+		.toolbar {
+			toolbarItems
+		}
 		.onAppear {
 			resetControlsTimer()
 		}
 		.onDisappear {
 			controlsTimer?.invalidate()
+		}
+	}
+
+	@ToolbarContentBuilder
+	var toolbarItems: some ToolbarContent {
+		ToolbarItem(placement: .topBarTrailing) {
+			Button(action: pipButtonTapped) {
+				Image(systemName: "pip")
+			}
 		}
 	}
 
@@ -120,13 +133,19 @@ extension VideoPlayerView {
 			}
 		}
 	}
+
+	func pipButtonTapped() {
+
+	}
 }
 
 #Preview {
-	VideoPlayerView(
-		video: Video(
-			title: "HLS 영상",
-			source: .remote(url: URL(string: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8")!)
+	NavigationStack {
+		VideoPlayerView(
+			video: Video(
+				title: "HLS 영상",
+				source: .remote(url: URL(string: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8")!)
+			)
 		)
-	)
+	}
 }
