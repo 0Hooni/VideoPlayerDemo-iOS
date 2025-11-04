@@ -113,8 +113,10 @@ extension VideoPlayerView {
 			withTimeInterval: 5.0,
 			repeats: false
 		) { _ in
-			withAnimation(.easeInOut(duration: 0.3)) {
-				showControls = false
+			Task { @MainActor in
+				withAnimation(.easeInOut(duration: 0.3)) {
+					showControls = false
+				}
 			}
 		}
 	}
