@@ -11,9 +11,15 @@ import AVFoundation
 struct VideoPlayerLayerView: UIViewRepresentable {
 
 	let player: AVPlayer
+	var onLayerReady: ((AVPlayerLayer) -> Void)?
+
+	init(player: AVPlayer, onLayerReady: ((AVPlayerLayer) -> Void)? = nil) {
+		self.player = player
+		self.onLayerReady = onLayerReady
+	}
 
 	func makeUIView(context: Context) -> UIView {
-		let view = PlayerView(player: player)
+		let view = PlayerView(player: player) { onLayerReady?($0) }
 		view.backgroundColor = .black
 		return view
 	}
@@ -24,11 +30,12 @@ struct VideoPlayerLayerView: UIViewRepresentable {
 private class PlayerView: UIView {
 	let playerLayer: AVPlayerLayer
 
-	init(player: AVPlayer) {
+	init(player: AVPlayer, onLayerReady: ((AVPlayerLayer) -> Void)? = nil) {
 		playerLayer = AVPlayerLayer(player: player)
 		playerLayer.videoGravity = .resizeAspect
 		super.init(frame: .zero)
 		layer.addSublayer(playerLayer)
+		onLayerReady?(playerLayer)
 	}
 
 	required init?(coder: NSCoder) {

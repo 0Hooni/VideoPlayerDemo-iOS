@@ -23,11 +23,13 @@ struct VideoPlayerView: View {
 	var body: some View {
 		ZStack(alignment: .center) {
 			// Video player layer
-			VideoPlayerLayerView(player: viewModel.player)
-				.ignoresSafeArea()
-				.onTapGesture {
-					toggleControlsVisibility()
-				}
+			VideoPlayerLayerView(player: viewModel.player) { playerLayer in
+				viewModel.setupPIPController(layer: playerLayer)
+			}
+			.ignoresSafeArea()
+			.onTapGesture {
+				toggleControlsVisibility()
+			}
 
 			// Control buttons overlay
 			if showControls {
@@ -135,7 +137,7 @@ extension VideoPlayerView {
 	}
 
 	func pipButtonTapped() {
-
+		
 	}
 }
 

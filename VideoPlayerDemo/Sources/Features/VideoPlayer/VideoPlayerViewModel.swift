@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import AVKit
 import Combine
 
 class VideoPlayerViewModel: ObservableObject {
@@ -14,15 +15,15 @@ class VideoPlayerViewModel: ObservableObject {
 	@Published var duration: TimeInterval = 0.0
 	@Published var currentTime: TimeInterval = 0.0
 	@Published var bufferedTime: TimeInterval = 0.0
+
 	let player: AVPlayer
 	var timeObserver: Any?
+	var pipController: PIPController?
 
 	init(video: Video) {
-		guard let url = video.source.url else {
-			self.player = AVPlayer()
-			return
-		}
-		self.player = AVPlayer(url: url)
+		if let url = video.source.url {
+			self.player = AVPlayer(url: url)
+		} else { self.player = AVPlayer() }
 
 		addPeriodicTimeObserver()
 	}
@@ -75,6 +76,10 @@ class VideoPlayerViewModel: ObservableObject {
 		guard let timeObserver else { return }
 		player.removeTimeObserver(timeObserver)
 		self.timeObserver = nil
+	}
+
+	func setupPIPController(layer: AVPlayerLayer) {
+		self.pipController = PIPController(with: layer)
 	}
 
 	isolated deinit {
