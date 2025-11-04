@@ -16,6 +16,9 @@ class VideoPlayerViewModel: ObservableObject {
 	@Published var currentTime: TimeInterval = 0.0
 	@Published var bufferedTime: TimeInterval = 0.0
 
+	@Published var isPipActive: Bool = false
+	@Published var isPipPossible: Bool = false
+
 	let player: AVPlayer
 	var timeObserver: Any?
 	var pipController: PIPController?
@@ -78,12 +81,21 @@ class VideoPlayerViewModel: ObservableObject {
 		self.timeObserver = nil
 	}
 
-	func setupPIPController(layer: AVPlayerLayer) {
-		self.pipController = PIPController(with: layer)
-	}
-
 	isolated deinit {
 		player.pause()
 		removePeriodicTimeObserver()
+	}
+}
+
+// MARK: - Picture in Picture utils
+extension VideoPlayerViewModel {
+	func setupPIPController(layer: AVPlayerLayer) {
+		pipController = PIPController(with: layer)
+		pipController?.onStateChange = { [weak self] in self?.isPipActive = $0 }
+		pipController?.onPossibilityChange = { [weak self] in self?.isPipPossible = $0 }
+	}
+
+	func togglePIP() {
+		pipController?.togglePIP()
 	}
 }

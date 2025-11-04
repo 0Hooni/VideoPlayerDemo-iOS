@@ -18,6 +18,11 @@ struct VideoPlayerView: View {
 		_viewModel = StateObject(
 			wrappedValue: VideoPlayerViewModel(video: video)
 		)
+		do {
+			try AVAudioSession.sharedInstance().setCategory(.playback)
+		} catch let error {
+			print("Audio session couldn't be configured.", error)
+		}
 	}
 
 	var body: some View {
@@ -61,8 +66,9 @@ struct VideoPlayerView: View {
 	var toolbarItems: some ToolbarContent {
 		ToolbarItem(placement: .topBarTrailing) {
 			Button(action: pipButtonTapped) {
-				Image(systemName: "pip")
+				Image(systemName: viewModel.isPipActive ? "pip.exit" : "pip.enter")
 			}
+			.disabled(!viewModel.isPipPossible)
 		}
 	}
 
@@ -137,7 +143,7 @@ extension VideoPlayerView {
 	}
 
 	func pipButtonTapped() {
-		
+		viewModel.togglePIP()
 	}
 }
 
