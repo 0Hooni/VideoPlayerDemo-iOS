@@ -84,7 +84,8 @@ struct VideoPlayerView: View {
 			)
 			SeekBar(
 				currentTime: $viewModel.currentTime,
-				duration: $viewModel.duration
+				duration: $viewModel.duration,
+				bufferedTime: $viewModel.bufferedTime
 			)
 			.padding(.bottom, UIDevice.current.orientation.isLandscape ? 12 : 40)
 			.padding(.horizontal, 28)

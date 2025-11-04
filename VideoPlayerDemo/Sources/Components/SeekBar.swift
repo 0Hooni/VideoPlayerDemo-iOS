@@ -11,6 +11,7 @@ struct SeekBar: View {
 
 	@Binding var currentTime: TimeInterval
 	@Binding var duration: TimeInterval
+	@Binding var bufferedTime: TimeInterval
 	let maxWidth: Double = 600
 	let horizontalPadding: Double = 4
 
@@ -22,12 +23,22 @@ struct SeekBar: View {
 				.frame(maxWidth: maxWidth + horizontalPadding * 2)
 				.overlay {
 					let progress = duration > 0 ? (currentTime / duration) : 0
-					
-					HStack(spacing: 0) {
-						Color.white
-							.frame(width: maxWidth * progress)
+					let bufferedProgress = duration > 0 ? (bufferedTime / duration) : 0
 
-						Spacer(minLength: 0)
+					ZStack(alignment: .leading) {
+						// 버퍼 진행 상태 표시
+						HStack(spacing: 0) {
+							Color.gray.opacity(0.5)
+								.frame(width: maxWidth * bufferedProgress)
+							Spacer(minLength: 0)
+						}
+
+						// 진행 상태 표시
+						HStack(spacing: 0) {
+							Color.white
+								.frame(width: maxWidth * progress)
+							Spacer(minLength: 0)
+						}
 					}
 					.clipShape(.capsule)
 					.padding(horizontalPadding)
@@ -40,6 +51,7 @@ struct SeekBar: View {
 #Preview {
 	SeekBar(
 		currentTime: .constant(8.0),
-		duration: .constant(16.0)
+		duration: .constant(16.0),
+		bufferedTime: .constant(12.0)
 	)
 }

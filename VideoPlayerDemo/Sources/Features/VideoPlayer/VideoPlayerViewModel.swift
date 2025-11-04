@@ -13,6 +13,7 @@ class VideoPlayerViewModel: ObservableObject {
 	@Published var isPlaying: Bool = false
 	@Published var duration: TimeInterval = 0.0
 	@Published var currentTime: TimeInterval = 0.0
+	@Published var bufferedTime: TimeInterval = 0.0
 	let player: AVPlayer
 	var timeObserver: Any?
 
@@ -58,6 +59,17 @@ class VideoPlayerViewModel: ObservableObject {
 			Task { @MainActor in
 				currentTime = time.seconds
 				duration = player.currentItem?.duration.seconds ?? 0.0
+
+				if let timeRanges = player.currentItem?.loadedTimeRanges {
+					let bufferedSeconds = timeRanges
+						.map { $0.timeRangeValue }
+						.compactMap { CMTimeGetSeconds($0.start) + CMTimeGetSeconds($0.duration) }
+						.max() ?? 0.0
+					bufferedTime = bufferedSeconds
+
+					let hello = timeRanges
+						.map { $0.timeRangeValue }
+				}
 			}
 		}
 	}

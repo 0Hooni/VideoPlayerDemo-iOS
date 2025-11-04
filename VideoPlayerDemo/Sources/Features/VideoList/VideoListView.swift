@@ -19,8 +19,8 @@ struct VideoListView: View {
 
 		if let heavyHlsUrl = URL(string: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"),
 			 let lightHlsUrl = URL(string: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8") {
-			videos.append(Video(title: "무거운 HLS 영상", source: .remote(url: heavyHlsUrl)))
-			videos.append(Video(title: "가벼운 HLS 영상", source: .remote(url: lightHlsUrl)))
+			videos.append(Video(title: "Blender Foundation Presents", source: .remote(url: heavyHlsUrl)))
+			videos.append(Video(title: "Big Buck BUNNY", source: .remote(url: lightHlsUrl)))
 		}
 
 		_viewModel = StateObject(wrappedValue: VideoListViewModel(videos: videos))
