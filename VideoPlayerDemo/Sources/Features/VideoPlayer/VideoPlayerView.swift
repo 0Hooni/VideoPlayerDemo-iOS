@@ -75,7 +75,7 @@ struct VideoPlayerView: View {
 	}
 
 	var playbackTimeView: some View {
-		VStack {
+		VStack(spacing: 12) {
 			Spacer()
 
 			PlayTimeText(
@@ -84,11 +84,12 @@ struct VideoPlayerView: View {
 			)
 			SeekBar(
 				currentTime: $viewModel.currentTime,
-				duration: $viewModel.duration
+				duration: $viewModel.duration,
+				bufferedTime: $viewModel.bufferedTime
 			)
-			.padding(.bottom, 16)
+			.padding(.bottom, UIDevice.current.orientation.isLandscape ? 12 : 40)
+			.padding(.horizontal, 28)
 		}
-		.ignoresSafeArea(.all)
 	}
 }
 
@@ -112,18 +113,20 @@ extension VideoPlayerView {
 			withTimeInterval: 5.0,
 			repeats: false
 		) { _ in
-			withAnimation(.easeInOut(duration: 0.3)) {
-				showControls = false
+			Task { @MainActor in
+				withAnimation(.easeInOut(duration: 0.3)) {
+					showControls = false
+				}
 			}
 		}
 	}
 }
 
 #Preview {
-    VideoPlayerView(
+	VideoPlayerView(
 		video: Video(
-			title: "Dog 15s",
-			source: .local(fileName: "dog 60s", ext: "mp4")
+			title: "HLS 영상",
+			source: .remote(url: URL(string: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8")!)
 		)
 	)
 }

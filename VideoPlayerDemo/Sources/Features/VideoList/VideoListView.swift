@@ -12,10 +12,17 @@ struct VideoListView: View {
 	@StateObject private var viewModel: VideoListViewModel
 
 	init() {
-		let videos: [Video] = [
+		var videos: [Video] = [
 			Video(title: "귀여운 강아지", source: .local(fileName: "dog 15s", ext: "mp4")),
-			Video(title: "밥 먹는 강이지", source: .local(fileName: "dog 60s", ext: "mp4"))
+			Video(title: "밥 먹는 강이지", source: .local(fileName: "dog 60s", ext: "mp4")),
 		]
+
+		if let heavyHlsUrl = URL(string: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8"),
+			 let lightHlsUrl = URL(string: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8") {
+			videos.append(Video(title: "Blender Foundation Presents", source: .remote(url: heavyHlsUrl)))
+			videos.append(Video(title: "Big Buck BUNNY", source: .remote(url: lightHlsUrl)))
+		}
+
 		_viewModel = StateObject(wrappedValue: VideoListViewModel(videos: videos))
 	}
 

@@ -13,6 +13,7 @@ class VideoPlayerViewModel: ObservableObject {
 	@Published var isPlaying: Bool = false
 	@Published var duration: TimeInterval = 0.0
 	@Published var currentTime: TimeInterval = 0.0
+	@Published var bufferedTime: TimeInterval = 0.0
 	let player: AVPlayer
 	var timeObserver: Any?
 
@@ -48,6 +49,8 @@ class VideoPlayerViewModel: ObservableObject {
 	}
 
 	func addPeriodicTimeObserver() {
+		if let timeObserver { player.removeTimeObserver(timeObserver) }
+
 		let interval = CMTime(value: 1, timescale: 2)
 		timeObserver = player.addPeriodicTimeObserver(
 			forInterval: interval,
@@ -56,8 +59,14 @@ class VideoPlayerViewModel: ObservableObject {
 			guard let self else { return }
 
 			Task { @MainActor in
+				guard let currentItem = player.currentItem else { return }
+
 				currentTime = time.seconds
-				duration = player.currentItem?.duration.seconds ?? 0.0
+				duration = currentItem.duration.seconds
+				bufferedTime = currentItem.loadedTimeRanges
+					.map { $0.timeRangeValue }
+					.map { CMTimeGetSeconds($0.start) + CMTimeGetSeconds($0.duration) }
+					.max() ?? 0.0
 			}
 		}
 	}
