@@ -8,7 +8,6 @@
 import AVFoundation
 import AVKit
 import Combine
-import MediaPlayer
 
 class VideoPlayerViewModel: ObservableObject {
 
@@ -24,8 +23,8 @@ class VideoPlayerViewModel: ObservableObject {
 		guard let url = video.source.url else { return AVPlayer() }
 		return AVPlayer(url: url)
 	}()
-	var timeObserver: Any?
-	var pipController: PIPController?
+	private var timeObserver: Any?
+	private var pipController: PIPController?
 
 	init(video: Video) {
 		self.video = video
@@ -34,15 +33,26 @@ class VideoPlayerViewModel: ObservableObject {
 		setupAudioSession()
 	}
 
-	func togglePlaying() {
-		if isPlaying {
-			player.pause()
-			stopAudioSession()
-		} else {
-			player.play()
-			startAudioSession()
-		}
+	isolated deinit {
+		stopMedia()
+		removePeriodicTimeObserver()
+	}
+}
 
+// MARK: - Media Controll utils
+extension VideoPlayerViewModel {
+	func stopMedia() {
+		player.pause()
+		stopAudioSession()
+	}
+
+	func startMedia() {
+		player.play()
+		startAudioSession()
+	}
+
+	func togglePlaying() {
+		if isPlaying { startMedia() } else { stopMedia() }
 		isPlaying.toggle()
 	}
 
@@ -85,12 +95,6 @@ class VideoPlayerViewModel: ObservableObject {
 		guard let timeObserver else { return }
 		player.removeTimeObserver(timeObserver)
 		self.timeObserver = nil
-	}
-
-	isolated deinit {
-		player.pause()
-		stopAudioSession()
-		removePeriodicTimeObserver()
 	}
 }
 
