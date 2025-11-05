@@ -15,28 +15,44 @@ class VideoPlayerViewModel: ObservableObject {
 	@Published var duration: TimeInterval = 0.0
 	@Published var currentTime: TimeInterval = 0.0
 	@Published var bufferedTime: TimeInterval = 0.0
-
 	@Published var isPipActive: Bool = false
 	@Published var isPipPossible: Bool = false
 
-	let player: AVPlayer
-	var timeObserver: Any?
-	var pipController: PIPController?
+	private let video: Video
+	private(set) lazy var player: AVPlayer = {
+		guard let url = video.source.url else { return AVPlayer() }
+		return AVPlayer(url: url)
+	}()
+	private var timeObserver: Any?
+	private var pipController: PIPController?
 
 	init(video: Video) {
-		if let url = video.source.url {
-			self.player = AVPlayer(url: url)
-		} else { self.player = AVPlayer() }
+		self.video = video
 
 		addPeriodicTimeObserver()
+		setupAudioSession()
+	}
+
+	isolated deinit {
+		stopMedia()
+		removePeriodicTimeObserver()
+	}
+}
+
+// MARK: - Media Controll utils
+extension VideoPlayerViewModel {
+	func stopMedia() {
+		player.pause()
+		stopAudioSession()
+	}
+
+	func startMedia() {
+		player.play()
+		startAudioSession()
 	}
 
 	func togglePlaying() {
-		if isPlaying {
-			player.pause()
-		} else {
-			player.play()
-		}
+		if isPlaying { stopMedia() } else { startMedia() }
 		isPlaying.toggle()
 	}
 
@@ -80,11 +96,6 @@ class VideoPlayerViewModel: ObservableObject {
 		player.removeTimeObserver(timeObserver)
 		self.timeObserver = nil
 	}
-
-	isolated deinit {
-		player.pause()
-		removePeriodicTimeObserver()
-	}
 }
 
 // MARK: - Picture in Picture utils
@@ -97,5 +108,32 @@ extension VideoPlayerViewModel {
 
 	func togglePIP() {
 		pipController?.togglePIP()
+	}
+}
+
+// MARK: - Audio Session utils
+extension VideoPlayerViewModel {
+	func setupAudioSession() {
+		do {
+			try AVAudioSession.sharedInstance().setCategory(.playback)
+		} catch let error {
+			print("Audio session couldn't be configured.", error)
+		}
+	}
+
+	func startAudioSession() {
+		do {
+			try AVAudioSession.sharedInstance().setActive(true)
+		} catch let error {
+			print("Audio session couldn't be activated.", error)
+		}
+	}
+
+	func stopAudioSession() {
+		do {
+			try AVAudioSession.sharedInstance().setActive(false)
+		} catch let error {
+			print("Audio session couldn't be deactivated.", error)
+		}
 	}
 }
