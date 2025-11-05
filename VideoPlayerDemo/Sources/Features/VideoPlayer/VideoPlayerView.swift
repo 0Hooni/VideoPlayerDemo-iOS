@@ -18,11 +18,6 @@ struct VideoPlayerView: View {
 		_viewModel = StateObject(
 			wrappedValue: VideoPlayerViewModel(video: video)
 		)
-		do {
-			try AVAudioSession.sharedInstance().setCategory(.playback)
-		} catch let error {
-			print("Audio session couldn't be configured.", error)
-		}
 	}
 
 	var body: some View {
