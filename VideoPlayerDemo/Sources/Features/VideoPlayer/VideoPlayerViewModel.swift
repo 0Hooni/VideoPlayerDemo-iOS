@@ -52,7 +52,7 @@ extension VideoPlayerViewModel {
 	}
 
 	func togglePlaying() {
-		if isPlaying { startMedia() } else { stopMedia() }
+		if isPlaying { stopMedia() } else { startMedia() }
 		isPlaying.toggle()
 	}
 
