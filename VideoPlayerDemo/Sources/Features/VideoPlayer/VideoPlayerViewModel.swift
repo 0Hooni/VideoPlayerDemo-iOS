@@ -12,14 +12,18 @@ import MediaPlayer
 
 class VideoPlayerViewModel: ObservableObject {
 
+	@Published var video: Video
+	@Published var playerStatus: AVPlayer.Status = .unknown
 	@Published var isPlaying: Bool = false
-	@Published var duration: TimeInterval = 0.0
+	@Published var showControls: Bool = true
+	@Published var controlsTimer: Timer?
+
 	@Published var currentTime: TimeInterval = 0.0
 	@Published var bufferedTime: TimeInterval = 0.0
+
 	@Published var isPipActive: Bool = false
 	@Published var isPipPossible: Bool = false
 
-	private let video: Video
 	private(set) lazy var player: AVPlayer = {
 		guard let url = video.source.url else { return AVPlayer() }
 		return AVPlayer(url: url)
@@ -30,6 +34,7 @@ class VideoPlayerViewModel: ObservableObject {
 	init(video: Video) {
 		self.video = video
 
+		setupPlayer()
 		addPeriodicTimeObserver()
 		setupAudioSession()
 		setupRemoteCommands()
@@ -43,6 +48,27 @@ class VideoPlayerViewModel: ObservableObject {
 
 // MARK: - Media Controll utils
 extension VideoPlayerViewModel {
+	func setupPlayer() {
+		player.publisher(for: \.status)
+			.receive(on: DispatchQueue.main)
+			.print("player.status")
+			.assign(to: &$playerStatus)
+
+		player.publisher(for: \.timeControlStatus)
+			.receive(on: DispatchQueue.main)
+			.map { $0 == .playing }
+			.print("isPlaying")
+			.assign(to: &$isPlaying)
+	}
+
+	func toggleControlVisibility() {
+		showControls.toggle()
+	}
+
+	func offControlVisibility() {
+		showControls = false
+	}
+
 	func stopMedia() {
 		player.pause()
 		stopAudioSession()
@@ -84,7 +110,6 @@ extension VideoPlayerViewModel {
 				guard let currentItem = player.currentItem else { return }
 
 				currentTime = time.seconds
-				duration = currentItem.duration.seconds
 				bufferedTime = currentItem.loadedTimeRanges
 					.map { $0.timeRangeValue }
 					.map { CMTimeGetSeconds($0.start) + CMTimeGetSeconds($0.duration) }
@@ -97,6 +122,24 @@ extension VideoPlayerViewModel {
 		guard let timeObserver else { return }
 		player.removeTimeObserver(timeObserver)
 		self.timeObserver = nil
+	}
+}
+
+// MARK: - Timer
+extension VideoPlayerViewModel {
+	func invalidateTimer() {
+		controlsTimer?.invalidate()
+	}
+
+	func resetTimer() {
+		controlsTimer?.invalidate()
+
+		controlsTimer = Timer.scheduledTimer(
+			withTimeInterval: 5.0,
+			repeats: false
+		) { [weak self] timer in
+			Task { @MainActor in self?.offControlVisibility() }
+		}
 	}
 }
 
@@ -158,7 +201,7 @@ extension VideoPlayerViewModel {
 		}
 
 		// 재생 시간 정보 설정
-		nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+		nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = video.duration
 		nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
 		nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
 
@@ -172,7 +215,7 @@ extension VideoPlayerViewModel {
 		}
 
 		// 동적 정보 업데이트
-		nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+		nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = video.duration
 		nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
 		nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
 

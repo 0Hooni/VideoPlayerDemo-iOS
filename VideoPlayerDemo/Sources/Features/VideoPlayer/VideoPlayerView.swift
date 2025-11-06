@@ -11,8 +11,6 @@ import AVKit
 struct VideoPlayerView: View {
 
 	@StateObject private var viewModel: VideoPlayerViewModel
-	@State private var showControls: Bool = true
-	@State private var controlsTimer: Timer?
 
 	init(video: Video) {
 		_viewModel = StateObject(
@@ -26,15 +24,9 @@ struct VideoPlayerView: View {
 			VideoPlayerLayerView(player: viewModel.player) { playerLayer in
 				viewModel.setupPIPController(layer: playerLayer)
 			}
-			.ignoresSafeArea()
-			.onTapGesture {
-				toggleControlsVisibility()
-			}
 
-			// Control buttons overlay
-			if showControls {
+			if viewModel.showControls && viewModel.playerStatus == .readyToPlay {
 				Color.black.opacity(0.3)
-					.ignoresSafeArea()
 					.onTapGesture {
 						toggleControlsVisibility()
 					}
@@ -42,18 +34,25 @@ struct VideoPlayerView: View {
 				controlButtonsView
 				playbackTimeView
 			}
-
 		}
 		.ignoresSafeArea(.all)
-		.toolbar(showControls ? .visible : .hidden)
+		.toolbar(
+			viewModel.showControls && viewModel.playerStatus
+			== .readyToPlay ? .visible : .hidden
+		)
 		.toolbar {
 			toolbarItems
 		}
+		.onTapGesture {
+			withAnimation {
+				viewModel.toggleControlVisibility()
+			}
+		}
 		.onAppear {
-			resetControlsTimer()
+			viewModel.resetTimer()
 		}
 		.onDisappear {
-			controlsTimer?.invalidate()
+			viewModel.invalidateTimer()
 		}
 	}
 
@@ -71,7 +70,7 @@ struct VideoPlayerView: View {
 		HStack(alignment: .center, spacing: 20) {
 			MediaControlButton(systemName: "backward.fill") {
 				viewModel.seekBackward()
-				resetControlsTimer()
+				viewModel.resetTimer()
 			}
 			.frame(width: 60, height: 60)
 			MediaControlButton(
@@ -79,12 +78,12 @@ struct VideoPlayerView: View {
 				"pause.fill" : "play.fill"
 			) {
 				viewModel.togglePlaying()
-				resetControlsTimer()
+				viewModel.resetTimer()
 			}
 			.frame(width: 72, height: 72)
 			MediaControlButton(systemName: "forward.fill") {
 				viewModel.seekForward()
-				resetControlsTimer()
+				viewModel.resetTimer()
 			}
 			.frame(width: 60, height: 60)
 		}
@@ -96,11 +95,11 @@ struct VideoPlayerView: View {
 
 			PlayTimeText(
 				currentTime: $viewModel.currentTime,
-				duration: $viewModel.duration
+				duration: Binding($viewModel.video.duration) ?? .constant(0.0)
 			)
 			SeekBar(
 				currentTime: $viewModel.currentTime,
-				duration: $viewModel.duration,
+				duration: Binding($viewModel.video.duration) ?? .constant(0.0),
 				bufferedTime: $viewModel.bufferedTime
 			)
 			.padding(.bottom, UIDevice.current.orientation.isLandscape ? 12 : 40)
@@ -112,27 +111,14 @@ struct VideoPlayerView: View {
 extension VideoPlayerView {
 	func toggleControlsVisibility() {
 		withAnimation(.easeInOut(duration: 0.3)) {
-			showControls.toggle()
+			viewModel.toggleControlVisibility()
 		}
 
-		if showControls {
-			resetControlsTimer()
+		if viewModel.showControls {
+			viewModel.resetTimer()
 		} else {
-			controlsTimer?.invalidate()
-		}
-	}
-
-	func resetControlsTimer() {
-		controlsTimer?.invalidate()
-
-		controlsTimer = Timer.scheduledTimer(
-			withTimeInterval: 5.0,
-			repeats: false
-		) { _ in
-			Task { @MainActor in
-				withAnimation(.easeInOut(duration: 0.3)) {
-					showControls = false
-				}
+			withAnimation(.easeInOut(duration: 0.3)) {
+				viewModel.invalidateTimer()
 			}
 		}
 	}
