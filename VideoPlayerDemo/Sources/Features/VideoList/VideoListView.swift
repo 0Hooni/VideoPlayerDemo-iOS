@@ -31,22 +31,26 @@ struct VideoListView: View {
 			hlsInputSection
 
 			List {
-				if !viewModel.localVideos.isEmpty {
-					Section("로컬 영상") {
-						ForEach(viewModel.localVideos) { video in
-							NavigationLink(value: video) {
-								VideoRow(video: video, viewModel: viewModel)
-							}
+				Section("Local") {
+					ForEach($viewModel.localVideos) { video in
+						NavigationLink(value: video.wrappedValue) {
+							VideoRow(video: video.projectedValue)
+								.task {
+									await viewModel.loadThumbnail(for: video.wrappedValue)
+									await viewModel.loadDuration(for: video.wrappedValue)
+								}
 						}
 					}
 				}
 
-				if !viewModel.remoteVideos.isEmpty {
-					Section("HLS 영상") {
-						ForEach(viewModel.remoteVideos) { video in
-							NavigationLink(value: video) {
-								VideoRow(video: video, viewModel: viewModel)
-							}
+				Section("HLS") {
+					ForEach($viewModel.remoteVideos) { video in
+						NavigationLink(value: video.wrappedValue) {
+							VideoRow(video: video.projectedValue)
+								.task {
+									await viewModel.loadThumbnail(for: video.wrappedValue)
+									await viewModel.loadDuration(for: video.wrappedValue)
+								}
 						}
 					}
 				}

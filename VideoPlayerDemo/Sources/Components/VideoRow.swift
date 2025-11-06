@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct VideoRow: View {
-	let video: Video
-	@ObservedObject var viewModel: VideoListViewModel
+	@Binding var video: Video
 
 	var body: some View {
 		HStack(spacing: 12) {
@@ -38,10 +37,6 @@ struct VideoRow: View {
 			Spacer()
 		}
 		.padding(.vertical, 4)
-		.task {
-			await viewModel.loadThumbnail(for: video)
-			await viewModel.loadDuration(for: video)
-		}
 	}
 
 	@ViewBuilder
