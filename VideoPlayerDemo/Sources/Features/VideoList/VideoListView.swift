@@ -30,7 +30,6 @@ struct VideoListView: View {
 		NavigationStack {
 			hlsInputSection
 
-
 			List {
 				videoSection(title: "Local", videos: $viewModel.localVideos)
 
@@ -72,8 +71,12 @@ struct VideoListView: View {
 				NavigationLink(value: video.wrappedValue) {
 					VideoRow(video: video)
 						.task {
-							await viewModel.loadThumbnail(for: video.wrappedValue)
-							await viewModel.loadDuration(for: video.wrappedValue)
+							if video.wrappedValue.thumbnail == nil {
+								await viewModel.loadThumbnail(for: video.wrappedValue)
+							}
+							if video.wrappedValue.duration == nil {
+								await viewModel.loadDuration(for: video.wrappedValue)
+							}
 						}
 				}
 			}
