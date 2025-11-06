@@ -8,6 +8,7 @@
 import AVFoundation
 import AVKit
 import Combine
+import MediaPlayer
 
 class VideoPlayerViewModel: ObservableObject {
 
@@ -31,6 +32,7 @@ class VideoPlayerViewModel: ObservableObject {
 
 		addPeriodicTimeObserver()
 		setupAudioSession()
+		setupRemoteCommands()
 	}
 
 	isolated deinit {
@@ -134,6 +136,113 @@ extension VideoPlayerViewModel {
 			try AVAudioSession.sharedInstance().setActive(false)
 		} catch let error {
 			print("Audio session couldn't be deactivated.", error)
+		}
+	}
+}
+
+// MARK: - Now Playing utils
+extension VideoPlayerViewModel {
+	func setupNowPlaying() {
+		var nowPlayingInfo = [String: Any]()
+
+		// 비디오 제목 설정
+		nowPlayingInfo[MPMediaItemPropertyTitle] = video.title
+
+		// 썸네일 설정
+		if let thumbnailData = video.thumbnail,
+		   let thumbnailImage = UIImage(data: thumbnailData) {
+			let artwork = MPMediaItemArtwork(boundsSize: thumbnailImage.size) { _ in
+				return thumbnailImage
+			}
+			nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+		}
+
+		// 재생 시간 정보 설정
+		nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+		nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+		nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+
+		MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+	}
+
+	func updateNowPlayingInfo() {
+		guard var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo else {
+			setupNowPlaying()
+			return
+		}
+
+		// 동적 정보 업데이트
+		nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+		nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+		nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+
+		MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+	}
+
+	func setupRemoteCommands() {
+		let commandCenter = MPRemoteCommandCenter.shared()
+
+		// Play 커맨드
+		commandCenter.playCommand.isEnabled = true
+		commandCenter.playCommand.addTarget { [weak self] _ in
+			self?.startMedia()
+			self?.isPlaying = true
+			self?.updateNowPlayingInfo()
+			return .success
+		}
+
+		// Pause 커맨드
+		commandCenter.pauseCommand.isEnabled = true
+		commandCenter.pauseCommand.addTarget { [weak self] _ in
+			self?.stopMedia()
+			self?.isPlaying = false
+			self?.updateNowPlayingInfo()
+			return .success
+		}
+
+		// Toggle Play/Pause 커맨드
+		commandCenter.togglePlayPauseCommand.isEnabled = true
+		commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+			self?.togglePlaying()
+			self?.updateNowPlayingInfo()
+			return .success
+		}
+
+		// Skip Forward 커맨드 (10초)
+		commandCenter.skipForwardCommand.isEnabled = true
+		commandCenter.skipForwardCommand.preferredIntervals = [10]
+		commandCenter.skipForwardCommand.addTarget { [weak self] _ in
+			self?.seekForward()
+			self?.updateNowPlayingInfo()
+			return .success
+		}
+
+		// Skip Backward 커맨드 (10초)
+		commandCenter.skipBackwardCommand.isEnabled = true
+		commandCenter.skipBackwardCommand.preferredIntervals = [10]
+		commandCenter.skipBackwardCommand.addTarget { [weak self] _ in
+			self?.seekBackward()
+			self?.updateNowPlayingInfo()
+			return .success
+		}
+
+		// Change Playback Position 커맨드
+		commandCenter.changePlaybackPositionCommand.isEnabled = true
+		commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+			guard let self,
+				  let event = event as? MPChangePlaybackPositionCommandEvent else {
+				return .commandFailed
+			}
+
+			let newTime = CMTime(seconds: event.positionTime, preferredTimescale: 1)
+			self.player.seek(to: newTime) { completed in
+				if completed {
+					Task { @MainActor in
+						self.updateNowPlayingInfo()
+					}
+				}
+			}
+			return .success
 		}
 	}
 }
