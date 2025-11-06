@@ -15,6 +15,7 @@ class VideoPlayerViewModel: ObservableObject {
 	@Published var video: Video
 	@Published var playerStatus: AVPlayer.Status = .unknown
 	@Published var isPlaying: Bool = false
+	@Published var isDurationLoading: Bool = true
 	@Published var showControls: Bool = true
 	@Published var controlsTimer: Timer?
 
@@ -59,6 +60,24 @@ extension VideoPlayerViewModel {
 			.map { $0 == .playing }
 			.print("isPlaying")
 			.assign(to: &$isPlaying)
+	}
+
+	func loadDuration() async {
+		if video.duration != nil {
+			self.isDurationLoading = false
+			return
+		}
+
+		guard let url = video.source.url else { return }
+		let asset = AVURLAsset(url: url)
+		do {
+			let duration = try await asset.load(.duration)
+			video.duration = CMTimeGetSeconds(duration)
+		} catch let error {
+			print("Failed to load duration for video: \(video.title), error: \(error)")
+		}
+
+		isDurationLoading = false
 	}
 
 	func toggleControlVisibility() {
