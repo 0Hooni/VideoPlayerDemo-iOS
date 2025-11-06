@@ -34,6 +34,15 @@ struct VideoPlayerView: View {
 				controlButtonsView
 				playbackTimeView
 			}
+
+			if viewModel.playerStatus != .readyToPlay {
+				Color.black
+					.overlay {
+						Text("로딩중...")
+							.font(.largeTitle)
+							.foregroundStyle(.white)
+					}
+			}
 		}
 		.ignoresSafeArea(.all)
 		.toolbar(
