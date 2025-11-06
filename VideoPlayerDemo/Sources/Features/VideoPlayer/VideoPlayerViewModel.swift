@@ -25,8 +25,8 @@ class VideoPlayerViewModel: ObservableObject {
 	@Published var isPipActive: Bool = false
 	@Published var isPipPossible: Bool = false
 
-	private(set) lazy var player: AVPlayer = {
-		guard let url = video.source.url else { return AVPlayer() }
+	private(set) lazy var player: AVPlayer? = {
+		guard let url = video.source.url else { return nil }
 		return AVPlayer(url: url)
 	}()
 	private var timeObserver: Any?
@@ -50,16 +50,26 @@ class VideoPlayerViewModel: ObservableObject {
 // MARK: - Media Controll utils
 extension VideoPlayerViewModel {
 	func setupPlayer() {
-		player.publisher(for: \.status)
+		// 플레이어를 재생에 사용할 수 있는지 여부
+		player?.publisher(for: \.status)
 			.receive(on: DispatchQueue.main)
 			.print("player.status")
 			.assign(to: &$playerStatus)
 
-		player.publisher(for: \.timeControlStatus)
+		// 현재 재생이 무기한 일시 중지되었는지, 적절한 조건을 기다리는 동안 일시 중지되었는지, 진행 중인지 여부
+		player?.publisher(for: \.timeControlStatus)
 			.receive(on: DispatchQueue.main)
 			.map { $0 == .playing }
 			.print("isPlaying")
 			.assign(to: &$isPlaying)
+
+		// 플레이어의 아이템의 현재 버퍼를 확인
+		player?.currentItem?.publisher(for: \.loadedTimeRanges, options: .new)
+			.receive(on: DispatchQueue.main)
+			.compactMap(\.first)
+			.map(\.timeRangeValue)
+			.map { CMTimeGetSeconds($0.start) + CMTimeGetSeconds($0.duration) }
+			.assign(to: &$bufferedTime)
 	}
 
 	func loadDuration() async {
@@ -89,12 +99,12 @@ extension VideoPlayerViewModel {
 	}
 
 	func stopMedia() {
-		player.pause()
+		player?.pause()
 		stopAudioSession()
 	}
 
 	func startMedia() {
-		player.play()
+		player?.play()
 		startAudioSession()
 	}
 
@@ -104,42 +114,38 @@ extension VideoPlayerViewModel {
 	}
 
 	func seekBackward() {
-		guard let currentTime = player.currentItem?.currentTime() else { return }
+		guard let currentTime = player?.currentItem?.currentTime() else { return }
 		let newTime = CMTimeSubtract(currentTime, CMTime(seconds: 10, preferredTimescale: 1))
-		player.seek(to: newTime)
+		player?.seek(to: newTime)
 	}
 
 	func seekForward() {
-		guard let currentTime = player.currentItem?.currentTime() else { return }
+		guard let currentTime = player?.currentItem?.currentTime() else { return }
 		let newTime = CMTimeAdd(currentTime, CMTime(seconds: 10, preferredTimescale: 1))
-		player.seek(to: newTime)
+		player?.seek(to: newTime)
 	}
 
 	func addPeriodicTimeObserver() {
-		if let timeObserver { player.removeTimeObserver(timeObserver) }
+		if let timeObserver { player?.removeTimeObserver(timeObserver) }
 
 		let interval = CMTime(value: 1, timescale: 2)
-		timeObserver = player.addPeriodicTimeObserver(
+		timeObserver = player?.addPeriodicTimeObserver(
 			forInterval: interval,
 			queue: .main
 		) { [weak self] time in
 			guard let self else { return }
 
 			Task { @MainActor in
-				guard let currentItem = player.currentItem else { return }
+				guard let currentItem = player?.currentItem else { return }
 
 				currentTime = time.seconds
-				bufferedTime = currentItem.loadedTimeRanges
-					.map { $0.timeRangeValue }
-					.map { CMTimeGetSeconds($0.start) + CMTimeGetSeconds($0.duration) }
-					.max() ?? 0.0
 			}
 		}
 	}
 
 	func removePeriodicTimeObserver() {
 		guard let timeObserver else { return }
-		player.removeTimeObserver(timeObserver)
+		player?.removeTimeObserver(timeObserver)
 		self.timeObserver = nil
 	}
 }
@@ -297,7 +303,7 @@ extension VideoPlayerViewModel {
 			}
 
 			let newTime = CMTime(seconds: event.positionTime, preferredTimescale: 1)
-			self.player.seek(to: newTime) { completed in
+			self.player?.seek(to: newTime) { completed in
 				if completed {
 					Task { @MainActor in
 						self.updateNowPlayingInfo()

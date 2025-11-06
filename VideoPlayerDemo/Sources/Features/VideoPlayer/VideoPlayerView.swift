@@ -20,29 +20,27 @@ struct VideoPlayerView: View {
 
 	var body: some View {
 		ZStack(alignment: .center) {
-			// Video player layer
 			if viewModel.playerStatus != .readyToPlay {
-				Color.black
-					.overlay {
-						Text("로딩중...")
-							.font(.largeTitle)
-							.foregroundStyle(.white)
-					}
+				loadingView
 			} else {
-				VideoPlayerLayerView(player: viewModel.player) { playerLayer in
-					viewModel.setupPIPController(layer: playerLayer)
-				}
-				.task(viewModel.loadDuration)
-				.onAppear(perform: viewModel.startMedia)
+				if let player = viewModel.player {
+					VideoPlayerLayerView(player: player) { playerLayer in
+						viewModel.setupPIPController(layer: playerLayer)
+					}
+					.task(viewModel.loadDuration)
+					.onAppear(perform: viewModel.startMedia)
 
-				if viewModel.showControls {
-					Color.black.opacity(0.3)
-						.onTapGesture {
-							toggleControlsVisibility()
-						}
+					if viewModel.showControls {
+						Color.black.opacity(0.3)
+							.onTapGesture {
+								toggleControlsVisibility()
+							}
 
-					controlButtonsView
-					playbackTimeView
+						controlButtonsView
+						playbackTimeView
+					}
+				} else {
+					errorView
 				}
 			}
 		}
@@ -75,6 +73,23 @@ struct VideoPlayerView: View {
 			}
 			.disabled(!viewModel.isPipPossible)
 		}
+	}
+
+	@ViewBuilder
+	var loadingView: some View {
+		Color.black
+			.overlay {
+				Text("로딩중...")
+					.font(.largeTitle)
+					.foregroundStyle(.white)
+			}
+	}
+
+	@ViewBuilder
+	private var errorView: some View {
+		Text("문제가 발생했습니다.\n다시 시도해 주세요.")
+			.font(.largeTitle)
+			.foregroundStyle(.white)
 	}
 
 	var controlButtonsView: some View {
@@ -146,6 +161,7 @@ extension VideoPlayerView {
 				title: "HLS 영상",
 				source: .remote(url: URL(string: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8")!)
 			)
+//			video: Video(title: "Sample Video", source: .local(fileName: "dog 15s", ext: "mp4"))
 		)
 	}
 }
