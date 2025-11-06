@@ -31,10 +31,13 @@ final class VideoListViewModel: ObservableObject {
 		let asset = AVURLAsset(url: url)
 		do {
 			let duration = try await asset.load(.duration)
-			if let videoIdx = localVideos.firstIndex(of: video) {
-				localVideos[videoIdx].duration = CMTimeGetSeconds(duration)
-			} else if let videoIdx = remoteVideos.firstIndex(of: video) {
-				remoteVideos[videoIdx].duration = CMTimeGetSeconds(duration)
+			switch video.source {
+			case .local:
+				guard let idx = localVideos.firstIndex(of: video) else { return }
+				localVideos[idx].duration = CMTimeGetSeconds(duration)
+			case .remote:
+				guard let idx = remoteVideos.firstIndex(of: video) else { return }
+				remoteVideos[idx].duration = CMTimeGetSeconds(duration)
 			}
 		} catch let error {
 			print("Failed to load duration for video: \(video.title), error: \(error)")
@@ -51,10 +54,13 @@ final class VideoListViewModel: ObservableObject {
 		do {
 			let cgImage = try await imageGenerator.image(at: .zero).image
 			let data = UIImage(cgImage: cgImage).pngData()
-			if let videoIdx = localVideos.firstIndex(of: video) {
-				localVideos[videoIdx].thumbnail = data
-			} else if let videoIdx = remoteVideos.firstIndex(of: video) {
-				remoteVideos[videoIdx].thumbnail = data
+			switch video.source {
+			case .local:
+				guard let idx = localVideos.firstIndex(of: video) else { return }
+				localVideos[idx].thumbnail = data
+			case .remote:
+				guard let idx = remoteVideos.firstIndex(of: video) else { return }
+				remoteVideos[idx].thumbnail = data
 			}
 		} catch {
 			print("Failed to generate thumbnail for video: \(video.title), error: \(error)")
