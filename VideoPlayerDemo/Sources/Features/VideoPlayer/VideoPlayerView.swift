@@ -21,20 +21,6 @@ struct VideoPlayerView: View {
 	var body: some View {
 		ZStack(alignment: .center) {
 			// Video player layer
-			VideoPlayerLayerView(player: viewModel.player) { playerLayer in
-				viewModel.setupPIPController(layer: playerLayer)
-			}
-
-			if viewModel.showControls && viewModel.playerStatus == .readyToPlay {
-				Color.black.opacity(0.3)
-					.onTapGesture {
-						toggleControlsVisibility()
-					}
-
-				controlButtonsView
-				playbackTimeView
-			}
-
 			if viewModel.playerStatus != .readyToPlay {
 				Color.black
 					.overlay {
@@ -42,6 +28,22 @@ struct VideoPlayerView: View {
 							.font(.largeTitle)
 							.foregroundStyle(.white)
 					}
+			} else {
+				VideoPlayerLayerView(player: viewModel.player) { playerLayer in
+					viewModel.setupPIPController(layer: playerLayer)
+				}
+				.task(viewModel.loadDuration)
+				.onAppear(perform: viewModel.startMedia)
+
+				if viewModel.showControls {
+					Color.black.opacity(0.3)
+						.onTapGesture {
+							toggleControlsVisibility()
+						}
+
+					controlButtonsView
+					playbackTimeView
+				}
 			}
 		}
 		.ignoresSafeArea(.all)
