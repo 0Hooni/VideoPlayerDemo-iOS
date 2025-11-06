@@ -12,8 +12,6 @@ import Combine
 @MainActor
 final class VideoListViewModel: ObservableObject {
 	@Published var videos: [Video]
-	@Published var thumbnails: [UUID: Data] = [:]
-	@Published var durations: [UUID: TimeInterval] = [:]
 	@Published var hlsInputText: String = ""
 
 	init(videos: [Video]) {
@@ -37,14 +35,13 @@ final class VideoListViewModel: ObservableObject {
 	/// 영상의 길이
 	func loadDuration(for video: Video) async {
 		guard let url = video.source.url else { return }
+		guard let videoIdx = videos.firstIndex(of: video) else { return }
 
 		let asset = AVURLAsset(url: url)
 
 		do {
 			let duration = try await asset.load(.duration)
-			let seconds = CMTimeGetSeconds(duration)
-
-			self.durations[video.id] = seconds
+			videos[videoIdx].duration = CMTimeGetSeconds(duration)
 		} catch {
 			print("Failed to load duration for video: \(video.title), error: \(error)")
 		}
@@ -53,6 +50,7 @@ final class VideoListViewModel: ObservableObject {
 	/// 영상의 가장 앞부분을 썸네일로 사용
 	func loadThumbnail(for video: Video) async {
 		guard let url = video.source.url else { return }
+		guard let videoIdx = videos.firstIndex(of: video) else { return }
 
 		let asset = AVURLAsset(url: url)
 		let imageGenerator = AVAssetImageGenerator(asset: asset)
@@ -63,7 +61,7 @@ final class VideoListViewModel: ObservableObject {
 			let uiImage = UIImage(cgImage: cgImage)
 
 			if let imageData = uiImage.pngData() {
-				self.thumbnails[video.id] = imageData
+				self.videos[videoIdx].thumbnail = imageData
 			}
 		} catch {
 			print("Failed to generate thumbnail for video: \(video.title), error: \(error)")
