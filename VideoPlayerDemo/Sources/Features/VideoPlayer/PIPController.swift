@@ -8,7 +8,7 @@
 import AVKit
 
 class PIPController: NSObject {
-	private let instance: AVPictureInPictureController!
+	private let instance: AVPictureInPictureController?
 	private var pipPossibleObservation: NSKeyValueObservation?
 
 	var onStateChange: ((Bool) -> Void)?
@@ -19,12 +19,12 @@ class PIPController: NSObject {
 
 		super.init( )
 
-		instance.delegate = self
+		instance?.delegate = self
 		setupPIPPossibleObserver()
 	}
 
 	private func setupPIPPossibleObserver() {
-		pipPossibleObservation = instance.observe(
+		pipPossibleObservation = instance?.observe(
 			\.isPictureInPicturePossible,
 			options: [.new, .initial]
 		) { [weak self] controller, change in
@@ -43,6 +43,8 @@ class PIPController: NSObject {
 // MARK: - PIP Controller utils
 extension PIPController {
 	func togglePIP() {
+		guard let instance else { return }
+
 		if instance.isPictureInPictureActive {
 			instance.stopPictureInPicture()
 		} else {

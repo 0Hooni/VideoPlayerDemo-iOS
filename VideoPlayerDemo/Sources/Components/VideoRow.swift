@@ -24,7 +24,7 @@ struct VideoRow: View {
 					.lineLimit(1)
 					.truncationMode(.tail)
 
-				if let duration = viewModel.durations[video.id] {
+				if let duration = video.duration {
 					Text(duration.toKRStyleString())
 						.font(.default)
 						.foregroundColor(.secondary)
@@ -46,7 +46,7 @@ struct VideoRow: View {
 
 	@ViewBuilder
 	private var thumbnailView: some View {
-		if let thumbnailData = viewModel.thumbnails[video.id],
+		if let thumbnailData = video.thumbnail,
 		   let uiImage = UIImage(data: thumbnailData) {
 			Image(uiImage: uiImage)
 				.resizable()
