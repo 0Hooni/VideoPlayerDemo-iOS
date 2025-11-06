@@ -35,7 +35,7 @@ class VideoPlayerViewModel: ObservableObject {
 	init(video: Video) {
 		self.video = video
 
-		setupPlayer()
+		sinkPlayerEvents()
 		addPeriodicTimeObserver()
 		setupAudioSession()
 		setupRemoteCommands()
@@ -49,18 +49,16 @@ class VideoPlayerViewModel: ObservableObject {
 
 // MARK: - Media Controll utils
 extension VideoPlayerViewModel {
-	func setupPlayer() {
+	func sinkPlayerEvents() {
 		// 플레이어를 재생에 사용할 수 있는지 여부
 		player?.publisher(for: \.status)
 			.receive(on: DispatchQueue.main)
-			.print("player.status")
 			.assign(to: &$playerStatus)
 
 		// 현재 재생이 무기한 일시 중지되었는지, 적절한 조건을 기다리는 동안 일시 중지되었는지, 진행 중인지 여부
 		player?.publisher(for: \.timeControlStatus)
 			.receive(on: DispatchQueue.main)
 			.map { $0 == .playing }
-			.print("isPlaying")
 			.assign(to: &$isPlaying)
 
 		// 플레이어의 아이템의 현재 버퍼를 확인
@@ -73,21 +71,17 @@ extension VideoPlayerViewModel {
 	}
 
 	func loadDuration() async {
-		if video.duration != nil {
-			self.isDurationLoading = false
-			return
-		}
+		defer { isDurationLoading = false }
 
-		guard let url = video.source.url else { return }
-		let asset = AVURLAsset(url: url)
-		do {
-			let duration = try await asset.load(.duration)
-			video.duration = CMTimeGetSeconds(duration)
-		} catch let error {
-			print("Failed to load duration for video: \(video.title), error: \(error)")
+		if video.duration == nil, let url = video.source.url {
+			let asset = AVURLAsset(url: url)
+			do {
+				let duration = try await asset.load(.duration)
+				video.duration = CMTimeGetSeconds(duration)
+			} catch let error {
+				print("Failed to load duration for video: \(video.title), error: \(error)")
+			}
 		}
-
-		isDurationLoading = false
 	}
 
 	func toggleControlVisibility() {
@@ -126,20 +120,14 @@ extension VideoPlayerViewModel {
 	}
 
 	func addPeriodicTimeObserver() {
-		if let timeObserver { player?.removeTimeObserver(timeObserver) }
+		removePeriodicTimeObserver()
 
 		let interval = CMTime(value: 1, timescale: 2)
 		timeObserver = player?.addPeriodicTimeObserver(
 			forInterval: interval,
 			queue: .main
 		) { [weak self] time in
-			guard let self else { return }
-
-			Task { @MainActor in
-				guard let currentItem = player?.currentItem else { return }
-
-				currentTime = time.seconds
-			}
+			Task { @MainActor in self?.currentTime = time.seconds }
 		}
 	}
 
