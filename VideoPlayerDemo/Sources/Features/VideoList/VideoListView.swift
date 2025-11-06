@@ -30,30 +30,11 @@ struct VideoListView: View {
 		NavigationStack {
 			hlsInputSection
 
-			List {
-				Section("Local") {
-					ForEach($viewModel.localVideos) { video in
-						NavigationLink(value: video.wrappedValue) {
-							VideoRow(video: video.projectedValue)
-								.task {
-									await viewModel.loadThumbnail(for: video.wrappedValue)
-									await viewModel.loadDuration(for: video.wrappedValue)
-								}
-						}
-					}
-				}
 
-				Section("HLS") {
-					ForEach($viewModel.remoteVideos) { video in
-						NavigationLink(value: video.wrappedValue) {
-							VideoRow(video: video.projectedValue)
-								.task {
-									await viewModel.loadThumbnail(for: video.wrappedValue)
-									await viewModel.loadDuration(for: video.wrappedValue)
-								}
-						}
-					}
-				}
+			List {
+				videoSection(title: "Local", videos: $viewModel.localVideos)
+
+				videoSection(title: "HLS", videos: $viewModel.remoteVideos)
 			}
 			.navigationDestination(for: Video.self) { video in
 				VideoPlayerView(video: video)
@@ -64,6 +45,7 @@ struct VideoListView: View {
 		}
 	}
 
+	@ViewBuilder
 	private var hlsInputSection: some View {
 		HStack(spacing: 12) {
 			TextField("HLS 링크 입력...", text: $viewModel.hlsInputText)
@@ -81,6 +63,21 @@ struct VideoListView: View {
 		}
 		.padding(.vertical, 8)
 		.padding(.horizontal, 20)
+	}
+
+	@ViewBuilder
+	private func videoSection(title: String, videos: Binding<[Video]>) -> some View {
+		Section(title) {
+			ForEach(videos) { video in
+				NavigationLink(value: video.wrappedValue) {
+					VideoRow(video: video)
+						.task {
+							await viewModel.loadThumbnail(for: video.wrappedValue)
+							await viewModel.loadDuration(for: video.wrappedValue)
+						}
+				}
+			}
+		}
 	}
 }
 
