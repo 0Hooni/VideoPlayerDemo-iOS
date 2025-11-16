@@ -13,7 +13,6 @@ import SwiftUI
 final class VideoListViewModel: ObservableObject {
 	@Published var localVideos: [Video] = []
 	@Published var remoteVideos: [Video] = []
-	@Published var hlsInputText: String = ""
 
 	init(videos: [Video]) {
 		videos.forEach {
@@ -66,6 +65,4 @@ final class VideoListViewModel: ObservableObject {
 			print("Failed to generate thumbnail for video: \(video.title), error: \(error)")
 		}
 	}
-
-	func playHLSVideo() {}
 }

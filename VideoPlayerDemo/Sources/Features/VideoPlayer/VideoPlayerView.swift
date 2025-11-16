@@ -159,7 +159,7 @@ extension VideoPlayerView {
 		VideoPlayerView(
 			video: Video(
 				title: "HLS 영상",
-				source: .remote(url: URL(string: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8")!)
+				source: .remote(urlString:  "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8")
 			)
 		)
 	}

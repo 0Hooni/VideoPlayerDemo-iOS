@@ -18,4 +18,12 @@ struct Sample {
 			source: .remote(urlString: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8")
 		)
 	]
+
+	var localVideos: [Video] {
+		return videos.filter { $0.source.type == .local }
+	}
+
+	var remoteVideos: [Video] {
+		return videos.filter { $0.source.type == .remote }
+	}
 }

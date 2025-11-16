@@ -24,7 +24,7 @@ struct HlsUrlInputFeature {
 		case playBtnTapped
 	}
 
-	private var body: some Reducer<State, Action> {
+	var body: some Reducer<State, Action> {
 		Reduce { state, action in
 			switch action {
 			case .textFieldDidChange(let text):

@@ -35,4 +35,16 @@ enum VideoSource: Hashable {
 			return URL(string: urlString)
 		}
 	}
+
+	enum CaseType {
+		case local
+		case remote
+	}
+
+	var type: CaseType {
+		switch self {
+		case .local: return .local
+		case .remote: return .remote
+		}
+	}
 }
