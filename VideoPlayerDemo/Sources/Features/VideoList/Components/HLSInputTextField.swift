@@ -11,9 +11,9 @@ import ComposableArchitecture
 
 struct HLSInputTextField: View {
 
-	let store = StoreOf<HLSInputFeature>(
-		initialState: HLSInputFeature.State()) {
-			HLSInputFeature()
+	let store = StoreOf<HlsUrlInputFeature>(
+		initialState: HlsUrlInputFeature.State()) {
+			HlsUrlInputFeature()
 		}
 
 	var body: some View {
