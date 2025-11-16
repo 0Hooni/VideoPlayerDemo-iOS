@@ -46,7 +46,7 @@ struct VideoListView: View {
 
 	var body: some View {
 		NavigationStack {
-			hlsInputSection
+			HLSInputTextField()
 
 			List {
 				videoSection(title: "Local", videos: $viewModel.localVideos)
@@ -60,26 +60,6 @@ struct VideoListView: View {
 			.navigationTitle("비디오 목록")
 			.navigationBarTitleDisplayMode(.inline)
 		}
-	}
-
-	@ViewBuilder
-	private var hlsInputSection: some View {
-		HStack(spacing: 12) {
-			TextField("HLS 링크 입력...", text: $viewModel.hlsInputText)
-				.textFieldStyle(.roundedBorder)
-				.autocapitalization(.none)
-				.autocorrectionDisabled()
-
-			Button(action: {
-				viewModel.playHLSVideo()
-			}) {
-				Image(systemName: "play.circle.fill")
-					.font(.title2)
-			}
-			.disabled(viewModel.hlsInputText.isEmpty)
-		}
-		.padding(.vertical, 8)
-		.padding(.horizontal, 20)
 	}
 
 	@ViewBuilder
