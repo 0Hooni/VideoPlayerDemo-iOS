@@ -12,7 +12,6 @@ struct HLSInputFeature {
 
 	@ObservableState
 	struct State: Equatable {
-		let placeHolder = "HLS 링크를 입력해주세요."
 		var inputText: String = ""
 	}
 

@@ -18,7 +18,7 @@ struct HLSInputTextField: View {
 
 	var body: some View {
 		HStack(spacing: 12) {
-			TextField(store.placeHolder, text: Binding<String>(
+			TextField("HLS 링크를 입력해주세요.", text: Binding<String>(
 				get: { store.inputText },
 				set: { store.send(.textFieldDidChange(text: $0)) }
 			))
