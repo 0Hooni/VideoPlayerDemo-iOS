@@ -20,4 +20,18 @@ struct HLSInputFeature {
 		case textFieldDidChange(text: String)
 		case playBtnTapped
 	}
+
+	var body: some Reducer<State, Action> {
+		Reduce { state, action in
+			switch action {
+			case .textFieldDidChange(let text):
+				state.inputText = text
+				return .none
+
+			case .playBtnTapped:
+				print("Play Btn Tapped!")
+				return .none
+			}
+		}
+	}
 }

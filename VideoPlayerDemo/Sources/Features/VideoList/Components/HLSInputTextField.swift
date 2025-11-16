@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+
 import ComposableArchitecture
 
 struct HLSInputTextField: View {
@@ -19,14 +20,14 @@ struct HLSInputTextField: View {
 		HStack(spacing: 12) {
 			TextField(store.placeHolder, text: Binding<String>(
 				get: { store.inputText },
-				set: { newValue in /* send Action */}
+				set: { store.send(.textFieldDidChange(text: $0)) }
 			))
 				.textFieldStyle(.roundedBorder)
 				.autocapitalization(.none)
 				.autocorrectionDisabled()
 
 			Button(action: {
-				// viewModel.playHLSVideo()
+				store.send(.playBtnTapped)
 			}) {
 				Image(systemName: "play.circle.fill")
 					.font(.title2)
