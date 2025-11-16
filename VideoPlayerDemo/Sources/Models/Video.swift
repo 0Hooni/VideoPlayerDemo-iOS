@@ -25,14 +25,14 @@ struct Video: Identifiable, Hashable {
 
 enum VideoSource: Hashable {
 	case local(fileName: String, ext: String = "mp4")
-	case remote(url: URL)
+	case remote(urlString: String)
 
 	var url: URL? {
 		switch self {
 		case .local(let fileName, let ext):
 			return Bundle.main.url(forResource: fileName, withExtension: ext)
-		case .remote(let url):
-			return url
+		case .remote(let urlString):
+			return URL(string: urlString)
 		}
 	}
 }
